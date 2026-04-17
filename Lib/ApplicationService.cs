@@ -333,7 +333,7 @@ namespace Geonorge.MassivNedlasting
                     var propotions = JsonConvert.DeserializeObject<List<Projections>>(json);
                     Log.Debug("Read from projection file");
                     r.Close();
-                    return propotions;
+                    return propotions ?? new List<Projections>();
                 }
             }
             catch (Exception e)
