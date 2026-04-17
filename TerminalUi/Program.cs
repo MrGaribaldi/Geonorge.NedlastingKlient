@@ -13,6 +13,7 @@ namespace Geonorge.MassivNedlasting.TerminalUi
         private static ConfigFile _configFile;
         private static DatasetService _datasetService;
         private static List<DownloadViewModel> _selectedDownloads;
+        private static string _activeDatasetTitle;
 
         private static void Main(string[] args)
         {
@@ -39,6 +40,7 @@ namespace Geonorge.MassivNedlasting.TerminalUi
             {
                 Console.WriteLine();
                 Console.WriteLine("Main menu");
+                Console.WriteLine(" Active dataset: " + (_activeDatasetTitle ?? "<none>"));
                 Console.WriteLine(" 1) Browse datasets and select files");
                 Console.WriteLine(" 2) View/edit selected downloads");
                 Console.WriteLine(" 3) Settings/configuration");
@@ -123,6 +125,7 @@ namespace Geonorge.MassivNedlasting.TerminalUi
 
         private static void EditDatasetSelection(Dataset dataset)
         {
+            _activeDatasetTitle = dataset.Title;
             Console.WriteLine();
             Console.WriteLine("Dataset: " + dataset.Title);
 
@@ -134,12 +137,14 @@ namespace Geonorge.MassivNedlasting.TerminalUi
             catch (Exception ex)
             {
                 Console.WriteLine("Could not load files for dataset: " + ex.Message);
+                _activeDatasetTitle = null;
                 return;
             }
 
             if (!files.Any())
             {
                 Console.WriteLine("No files available for this dataset.");
+                _activeDatasetTitle = null;
                 return;
             }
 
@@ -148,6 +153,7 @@ namespace Geonorge.MassivNedlasting.TerminalUi
             while (true)
             {
                 Console.WriteLine();
+                Console.WriteLine("Active dataset: " + dataset.Title);
                 Console.WriteLine("Dataset actions");
                 Console.WriteLine(" 1) Search and add files");
                 Console.WriteLine(" 2) Remove files from selection");
@@ -172,6 +178,7 @@ namespace Geonorge.MassivNedlasting.TerminalUi
                         EditSubscribeFilters(dataset);
                         break;
                     case "5":
+                        _activeDatasetTitle = null;
                         return;
                     default:
                         Console.WriteLine("Unknown choice.");
@@ -182,6 +189,7 @@ namespace Geonorge.MassivNedlasting.TerminalUi
 
         private static void SearchAndSelectFiles(Dataset dataset, List<DatasetFileViewModel> files, bool add)
         {
+            Console.WriteLine("Active dataset: " + dataset.Title);
             Console.Write(add ? "Search files to add (blank = all): " : "Search files to remove (blank = all): ");
             var query = Console.ReadLine();
 
