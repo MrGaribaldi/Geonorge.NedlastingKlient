@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyName>Geonorge.MassivNedlasting.TerminalUi</AssemblyName>
+    <RootNamespace>Geonorge.MassivNedlasting.TerminalUi</RootNamespace>
+    <Authors>Kartverket</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lib\Geonorge.MassivNedlasting.csproj" />
+  </ItemGroup>
+
+</Project>
