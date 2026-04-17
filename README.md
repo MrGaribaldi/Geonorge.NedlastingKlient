@@ -4,6 +4,8 @@ This project provides a client software for downloading dataset's published thro
 
 It includes a desktop application for browsing and selecting files you want to download. A console application is provided to perform downloads. This console application can be scheduled to run through Scheduled tasks on windows, or cron on *nix platforms.
 
+It also includes a cross-platform terminal UI (`Geonorge.MassivNedlasting.TerminalUi`) for Linux/macOS/Windows that can browse datasets and edit download selection without the Windows-only GUI.
+
 # Introduction
 
 Use the graphical client to select which files you want to download. The selected files are saved to download.json. The file is saved at the following locations:
@@ -16,7 +18,7 @@ Linux/Mac:
 
 When you start the console application the download.json file is parsed together with the latest version of the Atom Feed. The application inspects the last updated date and compares it with the local copy of the file. If a new file has been published it will start the download. 
 
-The graphical client is only available on Windows. But the console application can be run on all platforms. This means that you can configure a list of files to download. Copy the download.json from your Windows machine on to your mac/linux machine and run the console application to perform download. 
+The graphical client is only available on Windows. The terminal UI and console downloader can run on all platforms. This means you can configure and maintain your selection directly on Linux/macOS without a Windows machine.
 
 ## How to change download location
 
@@ -33,6 +35,22 @@ Project depends on:
 
 Packages can be downloaded from here:
 https://www.microsoft.com/net/download/windows
+
+Linux SDK setup example (for local user install):
+
+```bash
+curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+bash /tmp/dotnet-install.sh --version 10.0.100 --install-dir "$HOME/.dotnet"
+```
+
+Make it persistent for future shells:
+
+```bash
+cat >> ~/.bash_profile <<'EOF'
+export DOTNET_ROOT="$HOME/.dotnet"
+export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"
+EOF
+```
 
 Solution builds with Visual Studio 2026. 
 
@@ -53,6 +71,12 @@ Graphical user interface for browsing and selecting files for download
 
 Compilation target: .net framework 4.7.1
 
+### Geonorge.MassivNedlasting.TerminalUi
+
+Cross-platform terminal UI for browsing datasets and editing download selection/configuration.
+
+Compilation target: net10.0
+
 ### NedlastingKlient.Konsoll
 Console application for downloading selected files
 
@@ -68,3 +92,34 @@ Build and publish for windows (64-bit)
 Build and publish for windows (64 bit) self contained
 
     dotnet publish -r win-x64 --self-contained
+
+Build terminal UI (Linux/macOS/Windows):
+
+    dotnet build TerminalUi/Geonorge.MassivNedlasting.TerminalUi.csproj
+
+Run terminal UI:
+
+    dotnet run --project TerminalUi/Geonorge.MassivNedlasting.TerminalUi.csproj
+
+Run downloader with active config:
+
+    dotnet run --project Console/Geonorge.Nedlaster.csproj
+
+## Migration note (Linux-compatible UI)
+
+### What was added
+* New terminal UI project: `TerminalUi/Geonorge.MassivNedlasting.TerminalUi.csproj`
+* Interactive text UI flow for:
+  * browsing/searching datasets
+  * searching/selecting/removing dataset files
+  * enabling subscribe mode and toggling projection/format filters
+  * editing download/log directories and credentials
+  * saving selection and settings
+
+### Config compatibility
+* Uses the same `settings.json` and config JSON files (`default.json` etc.) through `ApplicationService` and `DatasetService`.
+* Existing downloader flow and console downloader are unchanged.
+
+### Known limitations
+* Terminal UI is menu-driven (not ncurses/full-screen), optimized for low complexity and maintainability.
+* Feed/file listings are intentionally capped per view (`top 50` datasets, `top 200` files) to keep terminal interaction responsive; users can refine search and repeat.

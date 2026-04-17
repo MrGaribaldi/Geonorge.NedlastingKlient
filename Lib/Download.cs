@@ -152,7 +152,8 @@ namespace Geonorge.MassivNedlasting
 
         private static string GetEpsgName(DatasetFile selectedFile)
         {
-            var projection = ApplicationService.GetProjections().FirstOrDefault(p => p.Epsg == selectedFile.Projection);
+            var projections = ApplicationService.GetProjections() ?? new List<Projections>();
+            var projection = projections.FirstOrDefault(p => p.Epsg == selectedFile.Projection);
             return projection != null ? projection.Name : selectedFile.Projection;
         }
 
