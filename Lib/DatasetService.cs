@@ -531,13 +531,37 @@ namespace Geonorge.MassivNedlasting
         /// <returns></returns>
         public List<Download> GetSelectedFilesToDownload(ConfigFile configFile = null)
         {
-            var downloadFilePath = _configFile != null ? _configFile.FilePath : ApplicationService.GetDownloadFilePath();
+            var selectedConfig = configFile ?? _configFile ?? ConfigFile.GetDefaultConfigFile();
+            var downloadFilePath = !string.IsNullOrWhiteSpace(selectedConfig.FilePath)
+                ? selectedConfig.FilePath
+                : ApplicationService.GetDownloadFilePath();
+
+            if (!File.Exists(downloadFilePath))
+            {
+                try
+                {
+                    var directory = Path.GetDirectoryName(downloadFilePath);
+                    if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+
+                    File.WriteAllText(downloadFilePath, "[]");
+                    Log.Information("Created missing download selection file: " + downloadFilePath);
+                    return new List<Download>();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Could not create missing download selection file: " + downloadFilePath);
+                }
+            }
+
             try
             {
                 using (var r = new StreamReader(downloadFilePath))
                 {
                     var json = r.ReadToEnd();
-                    var selecedForDownload = JsonConvert.DeserializeObject<List<Download>>(json);
+                    var selecedForDownload = JsonConvert.DeserializeObject<List<Download>>(json) ?? new List<Download>();
                     r.Close();
                     selecedForDownload = RemoveDuplicatesIterative(selecedForDownload);
                     selecedForDownload = ConvertToNewVersionOfDownloadFile(selecedForDownload);
